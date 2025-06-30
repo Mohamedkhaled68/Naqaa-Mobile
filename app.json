@@ -16,7 +16,15 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "navigationBar": {
+        "visible": "sticky-immersive",
+        "behavior": "overlay-swipe",
+        "backgroundColor": "#00000001"
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "fullScreen": true,
+      "package": "com.mohamedkhaled68.naqaacarsmanagement"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +41,18 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3c634be5-cdd0-4c96-825c-fb7b871567b8"
+      }
     }
   }
 }
