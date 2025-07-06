@@ -1,8 +1,10 @@
 import MaintenanceCategories from "@/components/home/MaintenanceCategories";
+import NoCarAssignedCard from "@/components/home/NoCarAssignedCard";
 import QuickActionsCard from "@/components/home/QuickActionsCard";
 import RecentActivityCard from "@/components/home/RecentActivityCard";
 import VehicleStatusCard from "@/components/home/VehicleStatusCard";
 import WelcomeHeader from "@/components/home/WelcomeHeader";
+import useGetCurrentDriver from "@/hooks/auth/useGetCurrentDriver";
 import useGetCategories from "@/hooks/categories/useGetCategories";
 import { useAuthStore } from "@/stores/auth-store";
 import { RefreshControl, ScrollView, View } from "react-native";
@@ -10,10 +12,19 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
     const { data: categories, isLoading, error, refetch } = useGetCategories();
+    const {
+        data: currentDriver,
+        isLoading: isDriverLoading,
+        refetch: refetchDriver,
+    } = useGetCurrentDriver();
     const { user } = useAuthStore();
+
+    // Check if driver has a car assigned (handle both null and undefined)
+    const hasCarAssigned = currentDriver?.driver?.car != null;
 
     const handleRefresh = () => {
         refetch();
+        refetchDriver();
     };
 
     return (
@@ -25,7 +36,7 @@ const Home = () => {
                     contentContainerStyle={{ paddingBottom: 20 }}
                     refreshControl={
                         <RefreshControl
-                            refreshing={isLoading}
+                            refreshing={isLoading || isDriverLoading}
                             onRefresh={handleRefresh}
                             colors={["#667eea"]}
                             tintColor="#667eea"
@@ -41,14 +52,22 @@ const Home = () => {
                     {/* Quick Actions */}
                     <QuickActionsCard />
 
-                    {/* Vehicle Status Overview */}
-                    <VehicleStatusCard />
+                    {/* Conditional rendering based on car assignment */}
+                    {hasCarAssigned ? (
+                        <>
+                            {/* Vehicle Status Overview */}
+                            <VehicleStatusCard />
 
-                    {/* Maintenance Categories */}
-                    <MaintenanceCategories
-                        categories={categories}
-                        isLoading={isLoading}
-                    />
+                            {/* Maintenance Categories */}
+                            <MaintenanceCategories
+                                categories={categories}
+                                isLoading={isLoading}
+                            />
+                        </>
+                    ) : (
+                        /* No Car Assigned Message */
+                        <NoCarAssignedCard />
+                    )}
 
                     {/* Recent Activity */}
                     <RecentActivityCard />

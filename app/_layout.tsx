@@ -21,7 +21,7 @@ export default function RootLayout() {
                     <Stack.Screen name="index" />
                     <Stack.Screen name="(auth)" />
                     <Stack.Screen name="(main)" />
-                    <Stack.Screen name="maintenance" />
+                    <Stack.Screen name="(receiver)" />
                     <Stack.Screen name="OCR-check" />
                 </Stack>
             </QueryProvider>

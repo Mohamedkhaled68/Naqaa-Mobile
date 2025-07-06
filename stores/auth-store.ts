@@ -1,23 +1,10 @@
+import { LoginCredentials, User } from "@/types/auth";
 import axios from "axios";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
 const baseUrl = "https://srv830738.hstgr.cloud/api";
-
-type User = {
-    id: string;
-    email: string;
-    name?: string;
-};
-
-type DriverInfo = {
-    name: string;
-    phoneNumber: number;
-    nationalId: string;
-    licenseNumber: string;
-    address: string;
-    car?: string;
-};
 
 type AuthState = {
     user: User | null;
@@ -25,11 +12,12 @@ type AuthState = {
     isLoading: boolean;
     isInitialized: boolean;
     initialize: () => Promise<void>;
-    signIn: (email: string, password: string) => Promise<void>;
-    signUp: (email: string, password: string, name: string) => Promise<void>;
+    signIn: (credentials: LoginCredentials) => Promise<void>;
     signOut: () => Promise<void>;
     setToken: (token: string) => void;
     setUser: (user: User) => void;
+    isDriver: () => boolean;
+    isReceiver: () => boolean;
 };
 
 const TOKEN_KEY = "auth_token";
@@ -58,15 +46,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    signIn: async (email, password) => {
+    signIn: async (credentials: LoginCredentials) => {
         set({ isLoading: true });
         try {
-            const response = await axios.post(`${baseUrl}/auth/login`, {
-                email,
-                password,
+            // Determine the endpoint based on role
+            const endpoint =
+                credentials.role === "driver"
+                    ? "/auth/driver/login"
+                    : "/auth/receiver/login";
+
+            const response = await axios.post(`${baseUrl}${endpoint}`, {
+                phoneNumber: credentials.phoneNumber,
+                password: credentials.password,
             });
 
-            const { user, token } = response.data.data;
+            const { user, token } = response.data.data || response.data;
 
             // Store in secure storage
             await SecureStore.setItemAsync(TOKEN_KEY, token);
@@ -84,33 +78,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    signUp: async (email, password, name) => {
-        set({ isLoading: true });
-        try {
-            const response = await axios.post(`${baseUrl}/auth/register`, {
-                email,
-                password,
-                name,
-            });
-
-            const { user, token } = response.data.data;
-
-            // Store in secure storage
-            await SecureStore.setItemAsync(TOKEN_KEY, token);
-            await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
-
-            set({
-                user,
-                token,
-                isLoading: false,
-            });
-        } catch (error) {
-            console.error("Sign up failed:", error);
-            set({ isLoading: false });
-            throw error;
-        }
-    },
-
     signOut: async () => {
         try {
             // Remove from secure storage
@@ -118,10 +85,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             await SecureStore.deleteItemAsync(USER_KEY);
 
             set({ user: null, token: null });
+
+            // Navigate to role selection page after logout
+            router.replace("/(auth)/role-selection");
         } catch (error) {
             console.error("Sign out failed:", error);
             // Still clear the state even if storage fails
             set({ user: null, token: null });
+
+            // Navigate to role selection even if storage cleanup fails
+            router.replace("/(auth)/role-selection");
         }
     },
 
@@ -131,5 +104,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     setUser: (user: User) => {
         set({ user });
+    },
+
+    isDriver: () => {
+        const { user } = get();
+        return user?.role === "driver";
+    },
+
+    isReceiver: () => {
+        const { user } = get();
+        return user?.role === "receiver";
     },
 }));

@@ -16,7 +16,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
 
     return (
         <View
-            className="px-6 pt-8 pb-12 rounded-b-3xl"
+            className="px-6 pt-8 rounded-b-3xl"
             style={{
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 4 },
@@ -58,7 +58,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
             </View>
 
             {/* Quick Stats */}
-            <View
+            {/* <View
                 className="rounded-2xl p-4"
                 style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
             >
@@ -93,7 +93,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
                         <Text className="text-white font-bold text-xl">15</Text>
                     </View>
                 </View>
-            </View>
+            </View> */}
         </View>
     );
 };

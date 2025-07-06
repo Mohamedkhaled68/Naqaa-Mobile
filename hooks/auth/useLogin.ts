@@ -1,23 +1,32 @@
+import { LoginCredentials } from "@/types/auth";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-
-type Driver = {
-    phoneNumber: string;
-    password: string;
-};
 
 const useLogin = () => {
     const baseUrl = "https://srv830738.hstgr.cloud/api";
 
     return useMutation({
         mutationKey: ["auth", "login"],
-        mutationFn: async (data: Driver) => {
-            const response = await axios.post(`${baseUrl}/auth/login`, data, {
-                headers: {
-                    "Content-Type": "application/json",
+        mutationFn: async (credentials: LoginCredentials) => {
+            // Determine endpoint based on role
+            const endpoint =
+                credentials.role === "driver"
+                    ? "/auth/login"
+                    : "/auth/receiver/login";
+
+            const response = await axios.post(
+                `${baseUrl}${endpoint}`,
+                {
+                    phoneNumber: credentials.phoneNumber,
+                    password: credentials.password,
                 },
-            });
-            
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
             return response.data;
         },
 

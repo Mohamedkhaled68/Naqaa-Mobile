@@ -8,11 +8,8 @@ export class SystemUIManager {
                 // Hide navigation bar
                 await NavigationBar.setVisibilityAsync("hidden");
 
-                // Set behavior to overlay-swipe (allows swipe up to show temporarily)
-                await NavigationBar.setBehaviorAsync("overlay-swipe");
-
-                // Make navigation bar transparent
-                await NavigationBar.setBackgroundColorAsync("#00000001");
+                // Note: setBehaviorAsync and setBackgroundColorAsync are not supported with edge-to-edge enabled
+                // The system will handle edge-to-edge behavior automatically
 
                 console.log("✅ Immersive mode activated");
             } catch (error) {

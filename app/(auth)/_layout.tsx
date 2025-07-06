@@ -7,8 +7,11 @@ export default function AuthLayout() {
                 headerShown: false,
             }}
         >
+            <Stack.Screen name="role-selection" />
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
+            <Stack.Screen name="register-role" />
+            <Stack.Screen name="register-receiver" />
         </Stack>
     );
 }

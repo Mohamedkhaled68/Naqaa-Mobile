@@ -1,8 +1,10 @@
 import useLogin from "@/hooks/auth/useLogin";
 import { useAuthStore } from "@/stores/auth-store";
-import { Link, useRouter } from "expo-router";
+import { LoginCredentials, UserRole } from "@/types/auth";
+import { Ionicons } from "@expo/vector-icons";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -19,6 +21,30 @@ const Login = () => {
     const { setToken, setUser } = useAuthStore();
     const loginMutation = useLogin();
     const router = useRouter();
+    const params = useLocalSearchParams();
+
+    // Get role from params, default to 'driver'
+    const role = (params.role as UserRole) || "driver";
+
+    const getRoleDetails = (userRole: UserRole) => {
+        return userRole === "driver"
+            ? {
+                  title: "Driver Login",
+                  subtitle: "Sign in to manage your vehicle maintenance",
+                  icon: "car-outline" as keyof typeof Ionicons.glyphMap,
+                  color: "#3b82f6",
+                  redirectPath: "/(main)/home",
+              }
+            : {
+                  title: "Receiver Login",
+                  subtitle: "Sign in to review maintenance requests",
+                  icon: "clipboard-outline" as keyof typeof Ionicons.glyphMap,
+                  color: "#059669",
+                  redirectPath: "/(receiver)/dashboard",
+              };
+    };
+
+    const roleDetails = getRoleDetails(role);
 
     const handleLogin = async () => {
         if (!phoneNumber.trim() || !password.trim()) {
@@ -27,22 +53,26 @@ const Login = () => {
         }
 
         try {
-            const result = await loginMutation.mutateAsync({
+            const credentials: LoginCredentials = {
                 phoneNumber: phoneNumber.trim(),
                 password,
-            });
+                role,
+            };
+
+            const result = await loginMutation.mutateAsync(credentials);
 
             // Store token and user data
             await SecureStore.setItemAsync("auth_token", result.token);
             await SecureStore.setItemAsync(
                 "auth_user",
-                JSON.stringify(result.driver)
+                JSON.stringify(result.user || result.driver)
             );
 
             setToken(result.token);
-            setUser(result.driver);
+            setUser(result.user || result.driver);
 
-            router.replace("/(main)/home");
+            // Redirect based on role
+            router.replace(roleDetails.redirectPath as any);
         } catch (error: any) {
             Alert.alert(
                 "Login Failed",
@@ -53,23 +83,59 @@ const Login = () => {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView className="flex-1 bg-background-light">
+            <SafeAreaView className="flex-1 bg-gray-50">
                 <View className="flex-1 justify-center items-center px-6">
+                    {/* Back Button */}
+                    <View className="w-full max-w-sm mb-6">
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            className="flex-row items-center"
+                        >
+                            <Ionicons
+                                name="arrow-back"
+                                size={24}
+                                color="#374151"
+                            />
+                            <Text className="text-gray-700 font-medium ml-2">
+                                Back
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <View className="w-full max-w-sm">
-                        <Text className="text-3xl font-bold text-center text-text-primary mb-8">
-                            Welcome Back
+                        {/* Role Icon */}
+                        <View className="items-center mb-6">
+                            <View
+                                className="w-20 h-20 rounded-full items-center justify-center mb-4"
+                                style={{
+                                    backgroundColor:
+                                        role === "driver"
+                                            ? "#eff6ff"
+                                            : "#ecfdf5",
+                                }}
+                            >
+                                <Ionicons
+                                    name={roleDetails.icon}
+                                    size={40}
+                                    color={roleDetails.color}
+                                />
+                            </View>
+                        </View>
+
+                        <Text className="text-3xl font-bold text-center text-gray-800 mb-3">
+                            {roleDetails.title}
                         </Text>
-                        <Text className="text-center text-text-secondary mb-8">
-                            Sign in to your account
+                        <Text className="text-center text-gray-600 mb-8">
+                            {roleDetails.subtitle}
                         </Text>
 
                         <View className="space-y-4">
                             <View>
-                                <Text className="text-text-primary mb-2 font-medium">
+                                <Text className="text-gray-700 mb-2 font-medium">
                                     Phone Number
                                 </Text>
                                 <TextInput
-                                    className="bg-input border border-border rounded-lg p-4 text-text-primary"
+                                    className="bg-white border border-gray-300 rounded-xl p-4 text-gray-800"
                                     placeholder="Enter your phone number"
                                     value={phoneNumber}
                                     onChangeText={setPhoneNumber}
@@ -81,11 +147,11 @@ const Login = () => {
                             </View>
 
                             <View>
-                                <Text className="text-text-primary mb-2 font-medium">
+                                <Text className="text-gray-700 mb-2 font-medium">
                                     Password
                                 </Text>
                                 <TextInput
-                                    className="bg-input border border-border rounded-lg p-4 text-text-primary"
+                                    className="bg-white border border-gray-300 rounded-xl p-4 text-gray-800"
                                     placeholder="Enter your password"
                                     value={password}
                                     onChangeText={setPassword}
@@ -95,9 +161,10 @@ const Login = () => {
                             </View>
 
                             <TouchableOpacity
-                                className={`bg-primary rounded-lg p-4 mt-6 ${
+                                className={`rounded-xl p-4 mt-6 ${
                                     loginMutation.isPending ? "opacity-50" : ""
                                 }`}
+                                style={{ backgroundColor: roleDetails.color }}
                                 onPress={handleLogin}
                                 disabled={loginMutation.isPending}
                             >
@@ -105,19 +172,35 @@ const Login = () => {
                                     <ActivityIndicator color="white" />
                                 ) : (
                                     <Text className="text-white text-center font-semibold text-lg">
-                                        Sign In
+                                        Sign In as{" "}
+                                        {role === "driver"
+                                            ? "Driver"
+                                            : "Receiver"}
                                     </Text>
                                 )}
                             </TouchableOpacity>
 
                             <View className="flex-row justify-center mt-6">
-                                <Text className="text-text-secondary">
+                                <Text className="text-gray-600">
                                     Don't have an account?{" "}
                                 </Text>
-                                <Link href="/(auth)/register" asChild>
+                                <Link href="/(auth)/register-role" asChild>
                                     <TouchableOpacity>
-                                        <Text className="text-primary font-semibold">
+                                        <Text className="text-blue-600 font-semibold">
                                             Sign Up
+                                        </Text>
+                                    </TouchableOpacity>
+                                </Link>
+                            </View>
+
+                            <View className="flex-row justify-center mt-4">
+                                <Text className="text-gray-600">
+                                    Wrong role?{" "}
+                                </Text>
+                                <Link href="/(auth)/role-selection" asChild>
+                                    <TouchableOpacity>
+                                        <Text className="text-blue-600 font-semibold">
+                                            Choose Role
                                         </Text>
                                     </TouchableOpacity>
                                 </Link>

@@ -18,7 +18,6 @@ const Profile = () => {
                 style: "destructive",
                 onPress: async () => {
                     await signOut();
-                    router.replace("/(auth)/login");
                 },
             },
         ]);
@@ -54,7 +53,7 @@ const Profile = () => {
                                     Email
                                 </Text>
                                 <Text className="text-text-primary text-lg font-medium">
-                                    {user?.email}
+                                    {/* {user?.email} */}
                                 </Text>
                             </View>
 
@@ -63,7 +62,7 @@ const Profile = () => {
                                     User ID
                                 </Text>
                                 <Text className="text-text-primary text-lg font-medium">
-                                    {user?.id}
+                                    {/* {user?.id} */}
                                 </Text>
                             </View>
                         </View>
