@@ -2,7 +2,7 @@ import useGetSubCategoryDetails from "@/hooks/categories/useGetSubCategoryDetail
 import useSubmitMaintenanceForm from "@/hooks/maintenance/useSubmitMaintenanceForm";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -35,6 +35,9 @@ const MaintenanceFormPage = () => {
     const { id } = useLocalSearchParams(); // subcategory id
     const router = useRouter();
     const [formData, setFormData] = useState<{ [key: string]: string }>({});
+    const [cost, setCost] = useState<string>("");
+    const [mechanicCost, setMechanicCost] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
 
     // Fetch subcategory details with custom fields
     const {
@@ -47,7 +50,7 @@ const MaintenanceFormPage = () => {
     const submitFormMutation = useSubmitMaintenanceForm();
 
     // Initialize form data when subcategory data is loaded
-    React.useEffect(() => {
+    useEffect(() => {
         if (subCategory?.customFields) {
             const initialFormData: { [key: string]: string } = {};
             subCategory.customFields.forEach((field: any) => {
@@ -67,6 +70,43 @@ const MaintenanceFormPage = () => {
     const validateForm = (): boolean => {
         if (!subCategory?.customFields) return false;
 
+        // Validate required fixed fields
+        if (!cost.trim()) {
+            Alert.alert(
+                "Required Field Missing",
+                "Please enter the total cost."
+            );
+            return false;
+        }
+
+        if (!mechanicCost.trim()) {
+            Alert.alert(
+                "Required Field Missing",
+                "Please enter the mechanic cost."
+            );
+            return false;
+        }
+
+        if (!description.trim()) {
+            Alert.alert(
+                "Required Field Missing",
+                "Please enter a description for this maintenance request."
+            );
+            return false;
+        }
+
+        // Validate cost fields are numbers
+        if (isNaN(Number(cost)) || Number(cost) <= 0) {
+            Alert.alert("Invalid Input", "Please enter a valid total cost.");
+            return false;
+        }
+
+        if (isNaN(Number(mechanicCost)) || Number(mechanicCost) <= 0) {
+            Alert.alert("Invalid Input", "Please enter a valid mechanic cost.");
+            return false;
+        }
+
+        // Validate custom fields
         const requiredFields = subCategory.customFields.filter(
             (field: any) => field.isRequired
         );
@@ -88,10 +128,31 @@ const MaintenanceFormPage = () => {
         if (!validateForm()) return;
 
         try {
-            await submitFormMutation.mutateAsync({
-                subCategoryId: id as string,
-                formData: formData,
-            });
+            // Transform formData into customFieldData format
+            const customFieldData = Object.entries(formData)
+                .filter(([fieldId, value]) => value.trim() !== "")
+                .map(([fieldId, value]) => {
+                    // Find the field to get its name
+                    const field = subCategory?.customFields.find(
+                        (f: any) => f._id === fieldId
+                    );
+                    return {
+                        fieldName: field?.fieldName || fieldId,
+                        fieldValue: value.trim(),
+                        subcategoryId: id as string,
+                    };
+                });
+
+            const submissionData = {
+                subCategories: [id as string],
+                customFieldData,
+                description: description.trim(),
+                cost: Number(cost),
+                mechanicCost: Number(mechanicCost),
+            };
+
+
+            await submitFormMutation.mutateAsync(submissionData);
 
             Alert.alert("Success", "Maintenance form submitted successfully!", [
                 {
@@ -325,6 +386,145 @@ const MaintenanceFormPage = () => {
                                 </View>
                             )
                         )}
+
+                        {/* Fixed Required Fields */}
+                        <View className="border-t border-gray-200 pt-6 mt-6">
+                            <Text className="text-gray-800 font-bold text-lg mb-4">
+                                Maintenance Information
+                            </Text>
+
+                            {/* Description Field */}
+                            <View className="mb-6">
+                                <View className="flex-row items-center mb-2">
+                                    <MaterialCommunityIcons
+                                        name="note-text"
+                                        size={18}
+                                        color="#667eea"
+                                        style={{ marginRight: 8 }}
+                                    />
+                                    <Text className="text-gray-800 font-semibold text-base flex-1">
+                                        Description
+                                        <Text className="text-red-500"> *</Text>
+                                    </Text>
+                                </View>
+                                <Text className="text-gray-500 text-sm mb-3 ml-6">
+                                    Describe the maintenance work needed or
+                                    performed
+                                </Text>
+                                <TextInput
+                                    className="bg-white border border-gray-200 rounded-xl p-4 text-gray-800 text-base"
+                                    style={{
+                                        shadowColor: "#000",
+                                        shadowOffset: {
+                                            width: 0,
+                                            height: 1,
+                                        },
+                                        shadowOpacity: 0.05,
+                                        shadowRadius: 2,
+                                        elevation: 1,
+                                        borderColor: !description.trim()
+                                            ? "#FCA5A5"
+                                            : "#E5E7EB",
+                                        minHeight: 100,
+                                    }}
+                                    placeholder="Enter detailed description of the maintenance work..."
+                                    value={description}
+                                    onChangeText={setDescription}
+                                    multiline={true}
+                                    numberOfLines={4}
+                                    textAlignVertical="top"
+                                    editable={!submitFormMutation.isPending}
+                                    placeholderTextColor="#9CA3AF"
+                                />
+                            </View>
+
+                            <Text className="text-gray-800 font-bold text-lg mb-4 mt-6">
+                                Cost Information
+                            </Text>
+
+                            {/* Total Cost Field */}
+                            <View className="mb-6">
+                                <View className="flex-row items-center mb-2">
+                                    <MaterialCommunityIcons
+                                        name="currency-usd"
+                                        size={18}
+                                        color="#667eea"
+                                        style={{ marginRight: 8 }}
+                                    />
+                                    <Text className="text-gray-800 font-semibold text-base flex-1">
+                                        Total Cost
+                                        <Text className="text-red-500"> *</Text>
+                                    </Text>
+                                </View>
+                                <Text className="text-gray-500 text-sm mb-3 ml-6">
+                                    Enter the total cost for this maintenance
+                                    service
+                                </Text>
+                                <TextInput
+                                    className="bg-white border border-gray-200 rounded-xl p-4 text-gray-800 text-base"
+                                    style={{
+                                        shadowColor: "#000",
+                                        shadowOffset: {
+                                            width: 0,
+                                            height: 1,
+                                        },
+                                        shadowOpacity: 0.05,
+                                        shadowRadius: 2,
+                                        elevation: 1,
+                                        borderColor: !cost.trim()
+                                            ? "#FCA5A5"
+                                            : "#E5E7EB",
+                                    }}
+                                    placeholder="Enter total cost..."
+                                    value={cost}
+                                    onChangeText={setCost}
+                                    keyboardType="numeric"
+                                    editable={!submitFormMutation.isPending}
+                                    placeholderTextColor="#9CA3AF"
+                                />
+                            </View>
+
+                            {/* Mechanic Cost Field */}
+                            <View className="mb-6">
+                                <View className="flex-row items-center mb-2">
+                                    <MaterialCommunityIcons
+                                        name="account-wrench"
+                                        size={18}
+                                        color="#667eea"
+                                        style={{ marginRight: 8 }}
+                                    />
+                                    <Text className="text-gray-800 font-semibold text-base flex-1">
+                                        Mechanic Cost
+                                        <Text className="text-red-500"> *</Text>
+                                    </Text>
+                                </View>
+                                <Text className="text-gray-500 text-sm mb-3 ml-6">
+                                    Enter the cost for mechanic labor
+                                </Text>
+                                <TextInput
+                                    className="bg-white border border-gray-200 rounded-xl p-4 text-gray-800 text-base"
+                                    style={{
+                                        shadowColor: "#000",
+                                        shadowOffset: {
+                                            width: 0,
+                                            height: 1,
+                                        },
+                                        shadowOpacity: 0.05,
+                                        shadowRadius: 2,
+                                        elevation: 1,
+                                        borderColor: !mechanicCost.trim()
+                                            ? "#FCA5A5"
+                                            : "#E5E7EB",
+                                    }}
+                                    placeholder="Enter mechanic cost..."
+                                    value={mechanicCost}
+                                    onChangeText={setMechanicCost}
+                                    keyboardType="numeric"
+                                    editable={!submitFormMutation.isPending}
+                                    placeholderTextColor="#9CA3AF"
+                                />
+                            </View>
+                        </View>
 
                         {/* Bottom Spacing */}
                         <View className="h-32" />

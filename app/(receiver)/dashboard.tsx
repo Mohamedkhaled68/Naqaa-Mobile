@@ -1,3 +1,5 @@
+import useGetAcceptedRequests from "@/hooks/receiver/useGetAcceptedRequests";
+import useGetPendingRequests from "@/hooks/receiver/useGetPendingRequests";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -7,6 +9,11 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 const ReceiverDashboard = () => {
     const { user, signOut } = useAuthStore();
     const router = useRouter();
+    const { data: pendingRequests } = useGetPendingRequests();
+    const { data: acceptedRequests } = useGetAcceptedRequests();
+
+    console.log(acceptedRequests.length, "Accepted Requests Length");
+    
 
     const handleLogout = () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -25,38 +32,48 @@ const ReceiverDashboard = () => {
         ]);
     };
 
+    const getUnderReviewCount = () => {
+        if (!pendingRequests) return "0";
+        return pendingRequests
+            .filter((req: any) => req.status === "underReview")
+            .length.toString();
+    };
+
     const dashboardCards = [
         {
             title: "Pending Requests",
-            count: "12",
+            count: pendingRequests?.length?.toString() || "0",
             icon: "time-outline" as keyof typeof Ionicons.glyphMap,
             color: "#f59e0b",
             bgColor: "#fef3c7",
-            // onPress: () => router.push("/(receiver)/requests"),
+            onPress: () => router.push("/(receiver)/requests"),
         },
         {
-            title: "Approved Today",
-            count: "8",
+            title: "Accepted Requests",
+            count: acceptedRequests?.length?.toString() || "0",
             icon: "checkmark-circle-outline" as keyof typeof Ionicons.glyphMap,
             color: "#10b981",
             bgColor: "#d1fae5",
-            onPress: () => {},
+            onPress: () => router.push("/(receiver)/accepted-requests"),
         },
         {
-            title: "Total Requests",
-            count: "156",
-            icon: "documents-outline" as keyof typeof Ionicons.glyphMap,
-            color: "#3b82f6",
-            bgColor: "#dbeafe",
-            onPress: () => {},
+            title: "Under Review",
+            count: getUnderReviewCount(),
+            icon: "eye-outline" as keyof typeof Ionicons.glyphMap,
+            color: "#f59e0b",
+            bgColor: "#fef3c7",
+            onPress: () => router.push("/(receiver)/under-review"), // Navigate to dedicated under review page
         },
         {
-            title: "High Priority",
-            count: "3",
-            icon: "warning-outline" as keyof typeof Ionicons.glyphMap,
-            color: "#ef4444",
-            bgColor: "#fee2e2",
-            onPress: () => {},
+            title: "Completed",
+            count:
+                acceptedRequests
+                    ?.filter((req: any) => req.status === "completed")
+                    ?.length?.toString() || "0",
+            icon: "checkmark-done-outline" as keyof typeof Ionicons.glyphMap,
+            color: "#059669",
+            bgColor: "#d1fae5",
+            onPress: () => router.push("/(receiver)/accepted-requests"),
         },
     ];
 
@@ -146,24 +163,54 @@ const ReceiverDashboard = () => {
                         <Text className="text-lg font-semibold text-gray-800 mb-4">
                             Quick Actions
                         </Text>
-                        <View className="space-y-3">
+                        <View className="space-y-3 flex flex-col gap-3">
                             <TouchableOpacity
-                                // onPress={() => router.push("/(receiver)/requests")}
+                                onPress={() =>
+                                    router.push("/(receiver)/requests")
+                                }
                                 className="p-4 bg-white rounded-xl border border-gray-200 flex-row items-center"
                             >
-                                <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
+                                <View className="w-12 h-12 bg-amber-100 rounded-lg items-center justify-center mr-4">
                                     <Ionicons
-                                        name="list-outline"
+                                        name="time-outline"
                                         size={24}
-                                        color="#3b82f6"
+                                        color="#f59e0b"
                                     />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-gray-800 font-semibold">
-                                        Review Requests
+                                        Pending Requests
                                     </Text>
                                     <Text className="text-gray-600 text-sm">
-                                        View and manage maintenance requests
+                                        Review and approve maintenance requests
+                                    </Text>
+                                </View>
+                                <Ionicons
+                                    name="chevron-forward"
+                                    size={20}
+                                    color="#9ca3af"
+                                />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={() =>
+                                    router.push("/(receiver)/accepted-requests")
+                                }
+                                className="p-4 bg-white rounded-xl border border-gray-200 flex-row items-center"
+                            >
+                                <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4">
+                                    <Ionicons
+                                        name="checkmark-circle-outline"
+                                        size={24}
+                                        color="#10b981"
+                                    />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-gray-800 font-semibold">
+                                        Accepted Requests
+                                    </Text>
+                                    <Text className="text-gray-600 text-sm">
+                                        View approved and completed maintenance
                                     </Text>
                                 </View>
                                 <Ionicons

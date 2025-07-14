@@ -9,7 +9,8 @@ export default function ReceiverLayout() {
         >
             <Stack.Screen name="dashboard" />
             <Stack.Screen name="requests" />
-            <Stack.Screen name="review/[id]" />
+            <Stack.Screen name="accepted-requests" />
+            <Stack.Screen name="request-details/[id]" />
         </Stack>
     );
 }

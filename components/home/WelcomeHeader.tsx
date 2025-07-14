@@ -1,3 +1,4 @@
+import useGetNotificationsStats from "@/hooks/notifications/useGetNotificationsStats";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -13,6 +14,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
     categoriesCount,
 }) => {
     const router = useRouter();
+    const { data: notificationStats } = useGetNotificationsStats();
 
     return (
         <View
@@ -26,7 +28,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
                 backgroundColor: "#667eea", // Modern gradient-like color
             }}
         >
-            <View className="flex-row justify-between items-start mb-6">
+            <View className="flex-row justify-between items-start mb-8">
                 <View className="flex-1">
                     <Text className="text-2xl font-bold text-white mb-2">
                         Welcome back! 👋
@@ -45,7 +47,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
                     </Text>
                 </View>
                 <TouchableOpacity
-                    className="p-3 rounded-full"
+                    className="p-3 rounded-full relative"
                     style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
                     onPress={() => router.push("/notifications")}
                 >
@@ -54,6 +56,39 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
                         size={24}
                         color="white"
                     />
+
+                    {/* Notification Badge */}
+                    {notificationStats?.unreadNotifications &&
+                        notificationStats.unreadNotifications > 0 && (
+                            <View
+                                style={{
+                                    position: "absolute",
+                                    top: 6,
+                                    right: 6,
+                                    backgroundColor: "#ef4444",
+                                    borderRadius: 10,
+                                    minWidth: 18,
+                                    height: 18,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    paddingHorizontal: 4,
+                                    borderWidth: 2,
+                                    borderColor: "white",
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: "white",
+                                        fontSize: 10,
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {notificationStats.unreadNotifications > 99
+                                        ? "99+"
+                                        : notificationStats.unreadNotifications}
+                                </Text>
+                            </View>
+                        )}
                 </TouchableOpacity>
             </View>
 

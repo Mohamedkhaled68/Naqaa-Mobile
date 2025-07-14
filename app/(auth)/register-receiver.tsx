@@ -1,3 +1,4 @@
+import useReceiverRegister from "@/hooks/auth/useReceiverRegister";
 import { ReceiverRegistrationData } from "@/types/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
@@ -16,19 +17,19 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 const RegisterReceiver = () => {
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [employeeId, setEmployeeId] = useState("");
-    const [department, setDepartment] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const { mutateAsync: createReceiver } = useReceiverRegister();
+
     const handleRegister = async () => {
         if (
             !name.trim() ||
             !phoneNumber.trim() ||
-            !employeeId.trim() ||
-            !department.trim() ||
+            !email.trim() ||
             !password.trim() ||
             !confirmPassword.trim()
         ) {
@@ -51,13 +52,11 @@ const RegisterReceiver = () => {
             const receiverData: ReceiverRegistrationData = {
                 name: name.trim(),
                 phoneNumber: phoneNumber.trim(),
-                employeeId: employeeId.trim(),
-                department: department.trim(),
+                email: email.trim(),
                 password,
             };
 
-            // TODO: Implement receiver registration API call
-            console.log("Receiver registration data:", receiverData);
+            await createReceiver(receiverData);
 
             Alert.alert("Success", "Receiver account created successfully!", [
                 {
@@ -107,7 +106,7 @@ const RegisterReceiver = () => {
                                 Create your receiver account
                             </Text>
 
-                            <View className="space-y-4">
+                            <View className="space-y-4 flex flex-col gap-4">
                                 <View>
                                     <Text className="text-gray-700 mb-2 font-medium">
                                         Full Name
@@ -138,26 +137,15 @@ const RegisterReceiver = () => {
 
                                 <View>
                                     <Text className="text-gray-700 mb-2 font-medium">
-                                        Employee ID
+                                        Email
                                     </Text>
                                     <TextInput
                                         className="bg-white border border-gray-300 rounded-xl p-4 text-gray-800"
-                                        placeholder="Enter your employee ID"
-                                        value={employeeId}
-                                        onChangeText={setEmployeeId}
-                                        editable={!isLoading}
-                                    />
-                                </View>
-
-                                <View>
-                                    <Text className="text-gray-700 mb-2 font-medium">
-                                        Department
-                                    </Text>
-                                    <TextInput
-                                        className="bg-white border border-gray-300 rounded-xl p-4 text-gray-800"
-                                        placeholder="Enter your department"
-                                        value={department}
-                                        onChangeText={setDepartment}
+                                        placeholder="Enter your email address"
+                                        value={email}
+                                        onChangeText={setEmail}
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
                                         editable={!isLoading}
                                     />
                                 </View>

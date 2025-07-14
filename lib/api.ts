@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import axios, { InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 
@@ -30,10 +31,11 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor to handle 401 errors
+// Response interceptor to handle 401 errors and network issues
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
+        // Handle 401 Unauthorized
         if (error.response?.status === 401) {
             try {
                 // Clear stored token on 401
@@ -46,6 +48,23 @@ api.interceptors.response.use(
                 console.error("Error clearing auth data:", clearError);
             }
         }
+
+        // Handle network errors
+        if (!error.response) {
+            // Check network connectivity
+            const networkState = await NetInfo.fetch();
+            if (!networkState.isConnected) {
+                const networkError = new Error("No internet connection");
+                networkError.name = "NetworkError";
+                return Promise.reject(networkError);
+            }
+
+            // If connected but no response, it's a server/timeout issue
+            const serverError = new Error("Unable to connect to server");
+            serverError.name = "ServerError";
+            return Promise.reject(serverError);
+        }
+
         return Promise.reject(error);
     }
 );

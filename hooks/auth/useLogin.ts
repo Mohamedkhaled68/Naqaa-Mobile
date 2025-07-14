@@ -12,7 +12,7 @@ const useLogin = () => {
             const endpoint =
                 credentials.role === "driver"
                     ? "/auth/login"
-                    : "/auth/receiver/login";
+                    : "/receivers/login";
 
             const response = await axios.post(
                 `${baseUrl}${endpoint}`,

@@ -69,7 +69,7 @@ const RegisterRoleSelection = () => {
                     </View>
 
                     {/* Role Cards */}
-                    <View className="flex-1 space-y-4">
+                    <View className="flex-1 flex flex-col gap-5 space-y-4">
                         {roles.map((role) => (
                             <TouchableOpacity
                                 key={role.id}

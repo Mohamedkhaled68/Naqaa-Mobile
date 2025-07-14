@@ -4,8 +4,10 @@ import QuickActionsCard from "@/components/home/QuickActionsCard";
 import RecentActivityCard from "@/components/home/RecentActivityCard";
 import VehicleStatusCard from "@/components/home/VehicleStatusCard";
 import WelcomeHeader from "@/components/home/WelcomeHeader";
+import NetworkErrorState from "@/components/NetworkErrorState";
 import useGetCurrentDriver from "@/hooks/auth/useGetCurrentDriver";
 import useGetCategories from "@/hooks/categories/useGetCategories";
+import { useNetwork } from "@/providers/NetworkProvider";
 import { useAuthStore } from "@/stores/auth-store";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -18,14 +20,29 @@ const Home = () => {
         refetch: refetchDriver,
     } = useGetCurrentDriver();
     const { user } = useAuthStore();
+    const { isConnected } = useNetwork();
 
     // Check if driver has a car assigned (handle both null and undefined)
-    const hasCarAssigned = currentDriver?.driver?.car != null;
+    const hasCarAssigned = currentDriver?.car != null;
 
     const handleRefresh = () => {
         refetch();
         refetchDriver();
     };
+
+    // Show network error if offline and there's an error
+    if (error && !isConnected) {
+        return (
+            <SafeAreaProvider>
+                <SafeAreaView className="flex-1 bg-gray-50">
+                    <NetworkErrorState
+                        onRetry={handleRefresh}
+                        message="Unable to load dashboard data"
+                    />
+                </SafeAreaView>
+            </SafeAreaProvider>
+        );
+    }
 
     return (
         <SafeAreaProvider>
@@ -48,6 +65,7 @@ const Home = () => {
                         userName={user?.name}
                         categoriesCount={categories?.length || 0}
                     />
+                    <View className="h-10" />
 
                     {/* Quick Actions */}
                     <QuickActionsCard />

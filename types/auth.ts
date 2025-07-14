@@ -16,15 +16,13 @@ export type Driver = BaseUser & {
     role: "driver";
     nationalId: string;
     licenseNumber: string;
-    car: string | null | undefined;
     address?: string;
 };
 
 // Receiver-specific fields
 export type Receiver = BaseUser & {
     role: "receiver";
-    employeeId: string;
-    department: string;
+    email: string;
     permissions: string[];
 };
 
@@ -58,7 +56,6 @@ export type DriverRegistrationData = {
 export type ReceiverRegistrationData = {
     name: string;
     phoneNumber: string;
-    employeeId: string;
-    department: string;
+    email: string;
     password: string;
 };

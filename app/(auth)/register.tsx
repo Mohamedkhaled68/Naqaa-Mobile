@@ -86,7 +86,7 @@ const Register = () => {
                                 Sign up as a driver to get started
                             </Text>
 
-                            <View className="space-y-4">
+                            <View className="space-y-4 flex flex-col gap-4">
                                 <View>
                                     <Text className="text-text-primary mb-2 font-medium">
                                         Full Name

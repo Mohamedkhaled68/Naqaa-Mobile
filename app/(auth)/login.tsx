@@ -65,15 +65,17 @@ const Login = () => {
             await SecureStore.setItemAsync("auth_token", result.token);
             await SecureStore.setItemAsync(
                 "auth_user",
-                JSON.stringify(result.user || result.driver)
+                JSON.stringify(result.receiver || result.driver)
             );
 
             setToken(result.token);
-            setUser(result.user || result.driver);
+            setUser(result.receiver || result.driver);
 
             // Redirect based on role
             router.replace(roleDetails.redirectPath as any);
         } catch (error: any) {
+            console.log("Login error:", error);
+            
             Alert.alert(
                 "Login Failed",
                 error.response?.data?.message || "Invalid credentials"
@@ -129,7 +131,7 @@ const Login = () => {
                             {roleDetails.subtitle}
                         </Text>
 
-                        <View className="space-y-4">
+                        <View className="space-y-4 flex flex-col gap-4">
                             <View>
                                 <Text className="text-gray-700 mb-2 font-medium">
                                     Phone Number
