@@ -1,3 +1,4 @@
+import GlobalNetworkHandler from "@/components/GlobalNetworkHandler";
 import useHideNavigationBar from "@/hooks/useHideNavigationBar";
 import { NetworkProvider } from "@/providers/NetworkProvider";
 import { QueryProvider } from "@/providers/query-provider";
@@ -13,18 +14,29 @@ export default function RootLayout() {
         <>
             <QueryProvider>
                 <NetworkProvider>
-                    <StatusBar style="dark" hidden={false} translucent={true} />
-                    <Stack
-                        screenOptions={{
-                            headerShown: false,
-                        }}
+                    <GlobalNetworkHandler
+                        showFullScreenError={true}
+                        roleAwareErrors={true}
+                        autoRetry={true}
+                        autoRetryInterval={5000}
                     >
-                        <Stack.Screen name="index" />
-                        <Stack.Screen name="(auth)" />
-                        <Stack.Screen name="(main)" />
-                        <Stack.Screen name="(receiver)" />
-                        <Stack.Screen name="OCR-check" />
-                    </Stack>
+                        <StatusBar
+                            style="dark"
+                            hidden={false}
+                            translucent={true}
+                        />
+                        <Stack
+                            screenOptions={{
+                                headerShown: false,
+                            }}
+                        >
+                            <Stack.Screen name="index" />
+                            <Stack.Screen name="(auth)" />
+                            <Stack.Screen name="(main)" />
+                            <Stack.Screen name="(receiver)" />
+                            <Stack.Screen name="OCR-check" />
+                        </Stack>
+                    </GlobalNetworkHandler>
                 </NetworkProvider>
             </QueryProvider>
         </>

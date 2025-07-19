@@ -16,7 +16,8 @@ const useUploadCarMeterImage = () => {
                     Accept: "application/json",
                 },
             });
-            console.log(response.data.data);
+            console.log("ddd", response.data.data.meterReading);
+
             return response.data.data;
         },
         onError: (error) => {

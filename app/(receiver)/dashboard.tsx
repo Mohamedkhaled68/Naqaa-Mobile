@@ -1,19 +1,39 @@
+import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetAcceptedRequests from "@/hooks/receiver/useGetAcceptedRequests";
 import useGetPendingRequests from "@/hooks/receiver/useGetPendingRequests";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const ReceiverDashboard = () => {
     const { user, signOut } = useAuthStore();
     const router = useRouter();
-    const { data: pendingRequests } = useGetPendingRequests();
-    const { data: acceptedRequests } = useGetAcceptedRequests();
+    const {
+        data: pendingRequests,
+        refetch: refetchPending,
+        isRefetching: isRefetchingPending,
+    } = useGetPendingRequests();
+    const {
+        data: acceptedRequests,
+        refetch: refetchAccepted,
+        isRefetching: isRefetchingAccepted,
+    } = useGetAcceptedRequests();
 
-    console.log(acceptedRequests.length, "Accepted Requests Length");
-    
+    const handleRefresh = () => {
+        refetchPending();
+        refetchAccepted();
+    };
+
+    const isRefreshing = isRefetchingPending || isRefetchingAccepted;
 
     const handleLogout = () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -32,12 +52,6 @@ const ReceiverDashboard = () => {
         ]);
     };
 
-    const getUnderReviewCount = () => {
-        if (!pendingRequests) return "0";
-        return pendingRequests
-            .filter((req: any) => req.status === "underReview")
-            .length.toString();
-    };
 
     const dashboardCards = [
         {
@@ -56,25 +70,6 @@ const ReceiverDashboard = () => {
             bgColor: "#d1fae5",
             onPress: () => router.push("/(receiver)/accepted-requests"),
         },
-        {
-            title: "Under Review",
-            count: getUnderReviewCount(),
-            icon: "eye-outline" as keyof typeof Ionicons.glyphMap,
-            color: "#f59e0b",
-            bgColor: "#fef3c7",
-            onPress: () => router.push("/(receiver)/under-review"), // Navigate to dedicated under review page
-        },
-        {
-            title: "Completed",
-            count:
-                acceptedRequests
-                    ?.filter((req: any) => req.status === "completed")
-                    ?.length?.toString() || "0",
-            icon: "checkmark-done-outline" as keyof typeof Ionicons.glyphMap,
-            color: "#059669",
-            bgColor: "#d1fae5",
-            onPress: () => router.push("/(receiver)/accepted-requests"),
-        },
     ];
 
     return (
@@ -83,6 +78,14 @@ const ReceiverDashboard = () => {
                 <ScrollView
                     className="flex-1"
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={handleRefresh}
+                            colors={["#3b82f6"]}
+                            tintColor="#3b82f6"
+                        />
+                    }
                 >
                     {/* Header */}
                     <View className="px-6 pt-4 pb-6 bg-white">
@@ -276,4 +279,8 @@ const ReceiverDashboard = () => {
     );
 };
 
-export default ReceiverDashboard;
+export default withNetworkErrorHandling(ReceiverDashboard, {
+    errorMessage: "Dashboard requires internet connection to load data",
+    showFullScreenError: true,
+    autoRetry: true,
+});

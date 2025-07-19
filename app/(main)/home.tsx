@@ -4,7 +4,7 @@ import QuickActionsCard from "@/components/home/QuickActionsCard";
 import RecentActivityCard from "@/components/home/RecentActivityCard";
 import VehicleStatusCard from "@/components/home/VehicleStatusCard";
 import WelcomeHeader from "@/components/home/WelcomeHeader";
-import NetworkErrorState from "@/components/NetworkErrorState";
+import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetCurrentDriver from "@/hooks/auth/useGetCurrentDriver";
 import useGetCategories from "@/hooks/categories/useGetCategories";
 import { useNetwork } from "@/providers/NetworkProvider";
@@ -22,6 +22,10 @@ const Home = () => {
     const { user } = useAuthStore();
     const { isConnected } = useNetwork();
 
+    // Debug log to check user data structure
+    console.log("Home - User data:", user);
+    console.log("Home - User name:", user?.name, "Type:", typeof user?.name);
+
     // Check if driver has a car assigned (handle both null and undefined)
     const hasCarAssigned = currentDriver?.car != null;
 
@@ -29,20 +33,6 @@ const Home = () => {
         refetch();
         refetchDriver();
     };
-
-    // Show network error if offline and there's an error
-    if (error && !isConnected) {
-        return (
-            <SafeAreaProvider>
-                <SafeAreaView className="flex-1 bg-gray-50">
-                    <NetworkErrorState
-                        onRetry={handleRefresh}
-                        message="Unable to load dashboard data"
-                    />
-                </SafeAreaView>
-            </SafeAreaProvider>
-        );
-    }
 
     return (
         <SafeAreaProvider>
@@ -62,8 +52,11 @@ const Home = () => {
                 >
                     {/* Welcome Header with modern gradient-style background */}
                     <WelcomeHeader
-                        userName={user?.name}
-                        categoriesCount={categories?.length || 0}
+                        userName={
+                            user?.name && typeof user.name === "string"
+                                ? user.name
+                                : undefined
+                        }
                     />
                     <View className="h-10" />
 
@@ -98,4 +91,9 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default withNetworkErrorHandling(Home, {
+    errorMessage: "Home dashboard requires internet connection to load data",
+    showFullScreenError: true,
+    autoRetry: true,
+    onRetry: undefined, // Let the component handle its own refresh logic
+});

@@ -24,12 +24,6 @@ export default function MainAppLayout() {
                         title: "Requests",
                     }}
                 />
-                {/* <Tabs.Screen
-                    name="notifications"
-                    options={{
-                        title: "Notifications",
-                    }}
-                /> */}
                 <Tabs.Screen
                     name="profile"
                     options={{

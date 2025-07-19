@@ -10,7 +10,7 @@ export interface NetworkState {
 
 export const useNetworkStatus = () => {
     const [networkState, setNetworkState] = useState<NetworkState>({
-        isConnected: true,
+        isConnected: false, // Start with false to block until proven connected
         isInternetReachable: null,
         type: null,
     });

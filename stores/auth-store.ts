@@ -52,8 +52,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             // Determine the endpoint based on role
             const endpoint =
                 credentials.role === "driver"
-                    ? "/auth/driver/login"
-                    : "/auth/receiver/login";
+                    ? "/auth/login"
+                    : "/receiver/login";
 
             const response = await axios.post(`${baseUrl}${endpoint}`, {
                 phoneNumber: credentials.phoneNumber,

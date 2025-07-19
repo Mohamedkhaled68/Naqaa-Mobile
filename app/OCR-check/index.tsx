@@ -1,3 +1,4 @@
+import useUpdateCarMeterReading from "@/hooks/ocr/useUpdateCarMeterReading";
 import useUploadCarMeterImage from "@/hooks/ocr/useUploadCarMeterImage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
@@ -18,7 +19,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const UploadImage = () => {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const { mutateAsync, isPending } = useUploadCarMeterImage();
+    const { mutateAsync: uploadReading, isPending } = useUploadCarMeterImage();
+    const { mutateAsync: updateReadingMutateAsync } =
+        useUpdateCarMeterReading();
 
     const openCamera = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -68,14 +71,13 @@ const UploadImage = () => {
             const uploadImage = async () => {
                 try {
                     setIsUploading(true);
-                    const { uri } = await FileSystem.getInfoAsync(imageUri);
-                    console.log(uri);
+                    await FileSystem.getInfoAsync(imageUri);
                     const imageFile = {
                         uri: imageUri,
                         name: "car-meter.jpg",
                         type: "image/jpeg",
                     };
-                    await mutateAsync(imageFile);
+                    await uploadReading(imageFile);
                     Alert.alert(
                         "Success!",
                         "Meter reading uploaded successfully.",

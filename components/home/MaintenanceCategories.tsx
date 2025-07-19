@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
@@ -34,36 +34,35 @@ const MaintenanceCategories: React.FC<MaintenanceCategoriesProps> = ({
     };
 
     const renderMaintenanceItem = ({ item }: { item: MaintenanceCategory }) => (
-        <Link href={`/maintenance/${item._id}`} asChild>
-            <TouchableOpacity
-                className="bg-white rounded-xl p-4 mx-1 mb-3 flex-1"
-                style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.05,
-                    shadowRadius: 4,
-                    elevation: 2,
-                    borderWidth: 1,
-                    borderColor: "#F3F4F6",
-                }}
-            >
-                <View className="items-center">
-                    <View
-                        className="w-10 h-10 rounded-full items-center justify-center mb-2"
-                        style={{ backgroundColor: "rgba(102, 126, 234, 0.1)" }}
-                    >
-                        <MaterialCommunityIcons
-                            name={getMaintenanceIcon(item.name) as any}
-                            size={20}
-                            color="#667eea"
-                        />
-                    </View>
-                    <Text className="text-gray-800 font-medium text-sm text-center">
-                        {item.name}
-                    </Text>
+        <TouchableOpacity
+            className="bg-white rounded-xl p-4 mx-1 mb-3 flex-1"
+            style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+                elevation: 2,
+                borderWidth: 1,
+                borderColor: "#F3F4F6",
+            }}
+            onPress={() => router.push("/subcategory-selection" as any)}
+        >
+            <View className="items-center">
+                <View
+                    className="w-10 h-10 rounded-full items-center justify-center mb-2"
+                    style={{ backgroundColor: "rgba(102, 126, 234, 0.1)" }}
+                >
+                    <MaterialCommunityIcons
+                        name={getMaintenanceIcon(item.name) as any}
+                        size={20}
+                        color="#667eea"
+                    />
                 </View>
-            </TouchableOpacity>
-        </Link>
+                <Text className="text-gray-800 font-medium text-sm text-center">
+                    {item?.name || "Unknown Category"}
+                </Text>
+            </View>
+        </TouchableOpacity>
     );
 
     return (
@@ -85,7 +84,7 @@ const MaintenanceCategories: React.FC<MaintenanceCategoriesProps> = ({
                     </Text>
                 </View>
                 <TouchableOpacity
-                    onPress={() => router.push("/categories" as any)}
+                    onPress={() => router.push("/subcategory-selection" as any)}
                 >
                     <Text className="font-medium" style={{ color: "#667eea" }}>
                         View All
@@ -152,10 +151,10 @@ const MaintenanceCategories: React.FC<MaintenanceCategoriesProps> = ({
                         size={48}
                         color="#9CA3AF"
                     />
-                    <Text className="text-text-muted text-center mt-4 mb-2">
+                    <Text className="text-gray-500 text-center mt-4 mb-2">
                         No maintenance categories available
                     </Text>
-                    <Text className="text-text-muted text-sm text-center">
+                    <Text className="text-gray-500 text-sm text-center">
                         Check back later for updates
                     </Text>
                 </View>

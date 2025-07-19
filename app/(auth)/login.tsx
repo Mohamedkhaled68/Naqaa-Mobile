@@ -65,11 +65,11 @@ const Login = () => {
             await SecureStore.setItemAsync("auth_token", result.token);
             await SecureStore.setItemAsync(
                 "auth_user",
-                JSON.stringify(result.receiver || result.driver)
+                JSON.stringify(result.user || result.receiver)
             );
 
             setToken(result.token);
-            setUser(result.receiver || result.driver);
+            setUser(result.user || result.receiver);
 
             // Redirect based on role
             router.replace(roleDetails.redirectPath as any);

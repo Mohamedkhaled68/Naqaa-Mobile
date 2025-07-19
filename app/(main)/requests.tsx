@@ -234,7 +234,7 @@ const DriverRequests = () => {
             </Text>
             <TouchableOpacity
                 className="bg-blue-600 px-6 py-3 rounded-lg mt-4"
-                onPress={() => router.push("/categories")}
+                onPress={() => router.push("/subcategory-selection")}
             >
                 <Text className="text-white font-medium">Create Request</Text>
             </TouchableOpacity>

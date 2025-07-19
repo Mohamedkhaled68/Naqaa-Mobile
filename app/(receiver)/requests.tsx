@@ -1,3 +1,4 @@
+import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetPendingRequests from "@/hooks/receiver/useGetPendingRequests";
 import { MaintenanceRequest } from "@/types/maintenance-request";
 import { Ionicons } from "@expo/vector-icons";
@@ -271,4 +272,8 @@ const PendingRequests = () => {
     );
 };
 
-export default PendingRequests;
+export default withNetworkErrorHandling(PendingRequests, {
+    errorMessage: "Pending requests require internet connection to load",
+    showFullScreenError: true,
+    autoRetry: true,
+});

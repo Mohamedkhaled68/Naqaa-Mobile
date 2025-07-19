@@ -6,13 +6,9 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 interface WelcomeHeaderProps {
     userName?: string;
-    categoriesCount: number;
 }
 
-const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
-    userName,
-    categoriesCount,
-}) => {
+const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ userName }) => {
     const router = useRouter();
     const { data: notificationStats } = useGetNotificationsStats();
 
@@ -59,36 +55,41 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({
 
                     {/* Notification Badge */}
                     {notificationStats?.unreadNotifications &&
-                        notificationStats.unreadNotifications > 0 && (
-                            <View
+                    typeof notificationStats.unreadNotifications === "number" &&
+                    notificationStats.unreadNotifications > 0 ? (
+                        <View
+                            style={{
+                                position: "absolute",
+                                top: 6,
+                                right: 6,
+                                backgroundColor: "#ef4444",
+                                borderRadius: 10,
+                                minWidth: 18,
+                                height: 18,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                paddingHorizontal: 4,
+                                borderWidth: 2,
+                                borderColor: "white",
+                            }}
+                        >
+                            <Text
                                 style={{
-                                    position: "absolute",
-                                    top: 6,
-                                    right: 6,
-                                    backgroundColor: "#ef4444",
-                                    borderRadius: 10,
-                                    minWidth: 18,
-                                    height: 18,
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    paddingHorizontal: 4,
-                                    borderWidth: 2,
-                                    borderColor: "white",
+                                    color: "white",
+                                    fontSize: 10,
+                                    fontWeight: "bold",
                                 }}
                             >
-                                <Text
-                                    style={{
-                                        color: "white",
-                                        fontSize: 10,
-                                        fontWeight: "bold",
-                                    }}
-                                >
-                                    {notificationStats.unreadNotifications > 99
-                                        ? "99+"
-                                        : notificationStats.unreadNotifications}
-                                </Text>
-                            </View>
-                        )}
+                                {(notificationStats?.unreadNotifications ?? 0) >
+                                99
+                                    ? "99+"
+                                    : String(
+                                          notificationStats?.unreadNotifications ??
+                                              0
+                                      )}
+                            </Text>
+                        </View>
+                    ) : null}
                 </TouchableOpacity>
             </View>
 

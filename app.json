@@ -4,7 +4,7 @@
         "slug": "naqaa-cars-management",
         "version": "1.0.0",
         "orientation": "portrait",
-        "icon": "./assets/images/naqaa-logo.png",
+        "icon": "./assets/images/bb.png",
         "scheme": "naqaacarsmanagement",
         "userInterfaceStyle": "automatic",
         "newArchEnabled": true,
@@ -20,8 +20,8 @@
         },
         "android": {
             "adaptiveIcon": {
-                "foregroundImage": "./assets/images/naqaa-logo.png",
-                "backgroundColor": "#ffffff"
+                "foregroundImage": "./assets/images/bb.png",
+                "backgroundColor": "#000"
             },
             "package": "com.mohamedkhaled68.naqaacarsmanagement"
         },
