@@ -5,6 +5,7 @@ import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import useGetNotificationsStats from "@/hooks/notifications/useGetNotificationsStats";
+import { useOrientation } from "@/hooks/useOrientation";
 import { useAuthStore } from "@/stores/auth-store";
 
 interface CustomTabBarProps {
@@ -22,9 +23,11 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
     const router = useRouter();
     const { user } = useAuthStore();
     const { data: notificationStats } = useGetNotificationsStats();
+    const { isLandscape } = useOrientation();
 
     const getTabIcon = (routeName: string, focused: boolean, color: string) => {
-        const size = focused ? 28 : 24;
+        // Smaller icons in landscape for a more compact design
+        const size = focused ? (isLandscape ? 24 : 28) : isLandscape ? 20 : 24;
 
         switch (routeName) {
             case "home":
@@ -70,13 +73,15 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
             style={{
                 position: "absolute",
                 bottom: Platform.OS === "ios" ? insets.bottom + 20 : 16,
-                left: 20,
-                right: 20,
+                left: isLandscape ? 40 : 20,
+                right: isLandscape ? 40 : 20,
+                width: "auto",
+                height: "auto",
                 backgroundColor: "#ffffff",
                 borderRadius: 28,
-                paddingVertical: 16,
-                paddingHorizontal: 10,
-                flexDirection: "row",
+                paddingVertical: isLandscape ? 12 : 16,
+                paddingHorizontal: isLandscape ? 16 : 10,
+                flexDirection: "row", // Always horizontal
                 justifyContent: "space-around",
                 alignItems: "center",
                 shadowColor: "#667eea",
@@ -93,12 +98,9 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
         >
             {state.routes
                 .filter((route: any) =>
-                    [
-                        "home",
-                        "requests",
-                        "profile",
-                        "settings",
-                    ].includes(route.name)
+                    ["home", "requests", "profile", "settings"].includes(
+                        route.name
+                    )
                 )
                 .map((route: any, index: number) => {
                     const { options } = descriptors[route.key];
@@ -125,10 +127,10 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
                             style={{
                                 flex: 1,
                                 alignItems: "center",
-                                paddingVertical: 12,
-                                paddingHorizontal: 13,
+                                paddingVertical: isLandscape ? 8 : 12,
+                                paddingHorizontal: isLandscape ? 6 : 13,
                                 borderRadius: 20,
-                                minHeight: 60,
+                                minHeight: isLandscape ? 50 : 60,
                                 justifyContent: "center",
                                 backgroundColor: isFocused
                                     ? "rgba(102, 126, 234, 0.12)"
@@ -139,24 +141,27 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
                             <View
                                 style={{
                                     transform: [{ scale: isFocused ? 1 : 0.9 }],
-                                    marginBottom: 2,
+                                    marginBottom: isLandscape ? 2 : 2,
                                     position: "relative",
                                 }}
                             >
                                 {getTabIcon(route.name, isFocused, color)}
-                                
                             </View>
-                            <Text
-                                style={{
-                                    color,
-                                    fontSize: isFocused ? 11 : 10,
-                                    fontWeight: isFocused ? "700" : "600",
-                                    marginTop: 4,
-                                    opacity: isFocused ? 1 : 0.8,
-                                }}
-                            >
-                                {getTabLabel(route.name)}
-                            </Text>
+
+                            {/* Show labels in portrait, hide or make smaller in landscape */}
+                            {!isLandscape && (
+                                <Text
+                                    style={{
+                                        color,
+                                        fontSize: isFocused ? 11 : 10,
+                                        fontWeight: isFocused ? "700" : "600",
+                                        marginTop: 4,
+                                        opacity: isFocused ? 1 : 0.8,
+                                    }}
+                                >
+                                    {getTabLabel(route.name)}
+                                </Text>
+                            )}
 
                             {/* Active indicator dot */}
                             {isFocused && (
@@ -166,7 +171,10 @@ const CustomTabBar: React.FC<CustomTabBarProps> = ({
                                         height: 3,
                                         borderRadius: 2,
                                         backgroundColor: "#667eea",
-                                        marginTop: 4,
+                                        marginTop: isLandscape ? 2 : 4,
+                                        transform: isLandscape
+                                            ? [{ translateY: -3 }]
+                                            : [],
                                     }}
                                 />
                             )}

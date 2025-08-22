@@ -3,7 +3,7 @@
         "name": "Naqaa",
         "slug": "naqaa-cars-management",
         "version": "1.0.0",
-        "orientation": "portrait",
+        "orientation": "default",
         "icon": "./assets/images/bb.png",
         "scheme": "naqaacarsmanagement",
         "userInterfaceStyle": "automatic",
@@ -32,6 +32,7 @@
         },
         "plugins": [
             "expo-router",
+            "expo-screen-orientation",
             [
                 "expo-splash-screen",
                 {

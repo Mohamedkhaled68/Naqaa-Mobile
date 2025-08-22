@@ -108,8 +108,8 @@ const AcceptedRequests = () => {
                             {item.driver.name}
                         </Text>
                         <Text className="text-sm text-gray-600">
-                            {item.car.brand} {item.car.model} (
-                            {item.car.plateNumber})
+                            {item.car?.brand} {item.car?.model} (
+                            {item.car?.plateNumber})
                         </Text>
                     </View>
                     <View

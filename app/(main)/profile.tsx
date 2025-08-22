@@ -1,11 +1,14 @@
+import DeleteAccountModal from "@/components/DeleteAccountModal";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
     const { user, signOut } = useAuthStore();
     const router = useRouter();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const handleLogout = () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -68,7 +71,7 @@ const Profile = () => {
                         </View>
                     </View>
 
-                    <View className="flex-1 justify-end mb-32">
+                    <View className="flex-1 justify-end mb-32 space-y-3">
                         <TouchableOpacity
                             className="bg-error rounded-lg p-4"
                             onPress={handleLogout}
@@ -77,8 +80,22 @@ const Profile = () => {
                                 Logout
                             </Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                            className="bg-red-600 rounded-lg p-4 border border-red-700 mt-5"
+                            onPress={() => setShowDeleteModal(true)}
+                        >
+                            <Text className="text-white text-center font-semibold text-lg">
+                                Delete Account
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
+
+                <DeleteAccountModal
+                    visible={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );

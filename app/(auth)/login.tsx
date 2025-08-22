@@ -61,6 +61,8 @@ const Login = () => {
 
             const result = await loginMutation.mutateAsync(credentials);
 
+            console.log(result);
+
             // Store token and user data
             await SecureStore.setItemAsync("auth_token", result.token);
             await SecureStore.setItemAsync(
@@ -75,7 +77,7 @@ const Login = () => {
             router.replace(roleDetails.redirectPath as any);
         } catch (error: any) {
             console.log("Login error:", error);
-            
+
             Alert.alert(
                 "Login Failed",
                 error.response?.data?.message || "Invalid credentials"

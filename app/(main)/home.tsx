@@ -4,9 +4,11 @@ import QuickActionsCard from "@/components/home/QuickActionsCard";
 import RecentActivityCard from "@/components/home/RecentActivityCard";
 import VehicleStatusCard from "@/components/home/VehicleStatusCard";
 import WelcomeHeader from "@/components/home/WelcomeHeader";
+import { ResponsiveContainer } from "@/components/ResponsiveLayout";
 import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetCurrentDriver from "@/hooks/auth/useGetCurrentDriver";
 import useGetCategories from "@/hooks/categories/useGetCategories";
+import { useOrientation } from "@/hooks/useOrientation";
 import { useNetwork } from "@/providers/NetworkProvider";
 import { useAuthStore } from "@/stores/auth-store";
 import { RefreshControl, ScrollView, View } from "react-native";
@@ -21,6 +23,7 @@ const Home = () => {
     } = useGetCurrentDriver();
     const { user } = useAuthStore();
     const { isConnected } = useNetwork();
+    const { isLandscape } = useOrientation();
 
     // Debug log to check user data structure
     console.log("Home - User data:", user);
@@ -50,41 +53,78 @@ const Home = () => {
                         />
                     }
                 >
-                    {/* Welcome Header with modern gradient-style background */}
-                    <WelcomeHeader
-                        userName={
-                            user?.name && typeof user.name === "string"
-                                ? user.name
-                                : undefined
-                        }
-                    />
-                    <View className="h-10" />
+                    <ResponsiveContainer>
+                        {/* Welcome Header with modern gradient-style background */}
+                        <WelcomeHeader
+                            userName={
+                                user?.name && typeof user.name === "string"
+                                    ? user.name
+                                    : undefined
+                            }
+                        />
+                        <View className="h-10" />
 
-                    {/* Quick Actions */}
-                    <QuickActionsCard />
+                        {isLandscape ? (
+                            /* Landscape Layout - Two Column */
+                            <View className="flex-row gap-6">
+                                <View className="flex-1">
+                                    {/* Quick Actions */}
+                                    <QuickActionsCard />
 
-                    {/* Conditional rendering based on car assignment */}
-                    {hasCarAssigned ? (
-                        <>
-                            {/* Vehicle Status Overview */}
-                            <VehicleStatusCard />
+                                    {/* Conditional rendering based on car assignment */}
+                                    {hasCarAssigned ? (
+                                        /* Vehicle Status Overview */
+                                        <VehicleStatusCard />
+                                    ) : (
+                                        /* No Car Assigned Message */
+                                        <NoCarAssignedCard />
+                                    )}
+                                </View>
 
-                            {/* Maintenance Categories */}
-                            <MaintenanceCategories
-                                categories={categories}
-                                isLoading={isLoading}
-                            />
-                        </>
-                    ) : (
-                        /* No Car Assigned Message */
-                        <NoCarAssignedCard />
-                    )}
+                                <View className="flex-1">
+                                    {hasCarAssigned && (
+                                        /* Maintenance Categories */
+                                        <MaintenanceCategories
+                                            categories={categories}
+                                            isLoading={isLoading}
+                                        />
+                                    )}
 
-                    {/* Recent Activity */}
-                    <RecentActivityCard />
+                                    {/* Recent Activity */}
+                                    <RecentActivityCard />
+                                </View>
+                            </View>
+                        ) : (
+                            /* Portrait Layout - Single Column */
+                            <>
+                                {/* Quick Actions */}
+                                <QuickActionsCard />
 
-                    {/* Bottom Spacing for floating tab navigation */}
-                    <View className="h-32" />
+                                {/* Conditional rendering based on car assignment */}
+                                {hasCarAssigned ? (
+                                    <>
+                                        {/* Vehicle Status Overview */}
+                                        <VehicleStatusCard />
+
+                                        {/* Maintenance Categories */}
+                                        <MaintenanceCategories
+                                            categories={categories}
+                                            isLoading={isLoading}
+                                        />
+                                    </>
+                                ) : (
+                                    /* No Car Assigned Message */
+                                    <NoCarAssignedCard />
+                                )}
+
+                                {/* Recent Activity */}
+                                <RecentActivityCard />
+                            </>
+                        )}
+
+                        {/* Bottom Spacing for floating tab navigation */}
+                        <View className="h-32" />
+                    </ResponsiveContainer>
                 </ScrollView>
             </SafeAreaView>
         </SafeAreaProvider>

@@ -14,6 +14,7 @@ type AuthState = {
     initialize: () => Promise<void>;
     signIn: (credentials: LoginCredentials) => Promise<void>;
     signOut: () => Promise<void>;
+    deleteAccount: () => Promise<void>;
     setToken: (token: string) => void;
     setUser: (user: User) => void;
     isDriver: () => boolean;
@@ -114,5 +115,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     isReceiver: () => {
         const { user } = get();
         return user?.role === "receiver";
+    },
+
+    deleteAccount: async () => {
+        try {
+            // Clear from secure storage
+            await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await SecureStore.deleteItemAsync(USER_KEY);
+
+            set({ user: null, token: null });
+
+            // Navigate to role selection page after account deletion
+            router.replace("/(auth)/role-selection");
+        } catch (error) {
+            console.error("Account deletion cleanup failed:", error);
+            // Still clear the state even if storage fails
+            set({ user: null, token: null });
+
+            // Navigate to role selection even if storage cleanup fails
+            router.replace("/(auth)/role-selection");
+        }
     },
 }));

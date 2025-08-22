@@ -1,17 +1,13 @@
+import { useOrientation } from "@/hooks/useOrientation";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import {
-    Dimensions,
-    FlatList,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
 const QuickActionsCard: React.FC = () => {
     const router = useRouter();
-    const screenWidth = Dimensions.get("window").width;
+    const { isLandscape, width } = useOrientation();
+    const screenWidth = width;
 
     const quickActions = [
         {
@@ -52,40 +48,51 @@ const QuickActionsCard: React.FC = () => {
         item,
     }: {
         item: (typeof quickActions)[0];
-    }) => (
-        <TouchableOpacity
-            className="bg-white rounded-2xl p-4 mx-2"
-            style={{
-                width: screenWidth * 0.42,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.08,
-                shadowRadius: 6,
-                elevation: 3,
-                borderWidth: 1,
-                borderColor: "#F8F9FA",
-            }}
-            onPress={() => router.push(item.route as any)}
-        >
-            <View className="items-center">
-                <View
-                    className="w-14 h-14 rounded-2xl items-center justify-center mb-3"
-                    style={{ backgroundColor: `${item.color}15` }}
-                >
-                    <Ionicons name={item.icon} size={26} color={item.color} />
+    }) => {
+        // Calculate dynamic width based on orientation
+        const itemWidth = isLandscape
+            ? screenWidth * 0.18 // Smaller items in landscape
+            : screenWidth * 0.42; // Original size in portrait
+
+        return (
+            <TouchableOpacity
+                className="bg-white rounded-2xl p-4 mx-2"
+                style={{
+                    width: itemWidth,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 3 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 6,
+                    elevation: 3,
+                    borderWidth: 1,
+                    borderColor: "#F8F9FA",
+                }}
+                onPress={() => router.push(item.route as any)}
+            >
+                <View className="items-center">
+                    <View
+                        className="w-14 h-14 rounded-2xl items-center justify-center mb-3"
+                        style={{ backgroundColor: `${item.color}15` }}
+                    >
+                        <Ionicons
+                            name={item.icon}
+                            size={26}
+                            color={item.color}
+                        />
+                    </View>
+                    <Text className="text-gray-800 font-bold text-sm mb-1">
+                        {item.title}
+                    </Text>
+                    <Text className="text-gray-500 text-xs text-center leading-4">
+                        {item.description}
+                    </Text>
                 </View>
-                <Text className="text-gray-800 font-bold text-sm mb-1">
-                    {item.title}
-                </Text>
-                <Text className="text-gray-500 text-xs text-center leading-4">
-                    {item.description}
-                </Text>
-            </View>
-        </TouchableOpacity>
-    );
+            </TouchableOpacity>
+        );
+    };
 
     return (
-        <View className="px-6 -mt-6 mb-8">
+        <View className={`mb-8 ${isLandscape ? "px-2" : "px-6 -mt-6"}`}>
             <View
                 className="bg-white rounded-2xl p-6"
                 style={{
@@ -109,14 +116,30 @@ const QuickActionsCard: React.FC = () => {
                         Quick Actions
                     </Text>
                 </View>
-                <FlatList
-                    data={quickActions}
-                    renderItem={renderQuickAction}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 4 }}
-                />
+
+                {isLandscape ? (
+                    /* Landscape: 2x2 Grid */
+                    <View className="flex-row flex-wrap justify-between">
+                        {quickActions.map((item, index) => (
+                            <View
+                                key={item.id}
+                                style={{ width: "48%", marginBottom: 12 }}
+                            >
+                                {renderQuickAction({ item })}
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    /* Portrait: Horizontal Scroll */
+                    <FlatList
+                        data={quickActions}
+                        renderItem={renderQuickAction}
+                        keyExtractor={(item) => item.id.toString()}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ paddingHorizontal: 4 }}
+                    />
+                )}
             </View>
         </View>
     );

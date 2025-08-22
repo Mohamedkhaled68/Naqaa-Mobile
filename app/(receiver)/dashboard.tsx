@@ -1,9 +1,11 @@
+import DeleteAccountModal from "@/components/DeleteAccountModal";
 import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetAcceptedRequests from "@/hooks/receiver/useGetAcceptedRequests";
 import useGetPendingRequests from "@/hooks/receiver/useGetPendingRequests";
 import { useAuthStore } from "@/stores/auth-store";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
     Alert,
     RefreshControl,
@@ -17,6 +19,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 const ReceiverDashboard = () => {
     const { user, signOut } = useAuthStore();
     const router = useRouter();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const {
         data: pendingRequests,
         refetch: refetchPending,
@@ -51,7 +54,6 @@ const ReceiverDashboard = () => {
             },
         ]);
     };
-
 
     const dashboardCards = [
         {
@@ -222,21 +224,31 @@ const ReceiverDashboard = () => {
                                     color="#9ca3af"
                                 />
                             </TouchableOpacity>
+                        </View>
 
-                            <TouchableOpacity className="p-4 bg-white rounded-xl border border-gray-200 flex-row items-center">
-                                <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4">
+                        {/* Profile Actions Section */}
+                        <View className="mt-6 space-y-3">
+                            <Text className="text-lg font-semibold text-gray-800 mb-4">
+                                Account Settings
+                            </Text>
+
+                            <TouchableOpacity
+                                onPress={handleLogout}
+                                className="p-4 bg-white rounded-xl border border-gray-200 flex-row items-center"
+                            >
+                                <View className="w-12 h-12 bg-gray-100 rounded-lg items-center justify-center mr-4">
                                     <Ionicons
-                                        name="bar-chart-outline"
+                                        name="log-out-outline"
                                         size={24}
-                                        color="#10b981"
+                                        color="#6b7280"
                                     />
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-gray-800 font-semibold">
-                                        Reports
+                                        Logout
                                     </Text>
                                     <Text className="text-gray-600 text-sm">
-                                        View maintenance statistics and reports
+                                        Sign out of your account
                                     </Text>
                                 </View>
                                 <Ionicons
@@ -246,26 +258,29 @@ const ReceiverDashboard = () => {
                                 />
                             </TouchableOpacity>
 
-                            <TouchableOpacity className="p-4 bg-white rounded-xl border border-gray-200 flex-row items-center">
-                                <View className="w-12 h-12 bg-purple-100 rounded-lg items-center justify-center mr-4">
+                            <TouchableOpacity
+                                onPress={() => setShowDeleteModal(true)}
+                                className="p-4 bg-white rounded-xl border border-red-200 flex-row items-center"
+                            >
+                                <View className="w-12 h-12 bg-red-100 rounded-lg items-center justify-center mr-4">
                                     <Ionicons
-                                        name="settings-outline"
+                                        name="trash-outline"
                                         size={24}
-                                        color="#8b5cf6"
+                                        color="#dc2626"
                                     />
                                 </View>
                                 <View className="flex-1">
-                                    <Text className="text-gray-800 font-semibold">
-                                        Settings
+                                    <Text className="text-red-800 font-semibold">
+                                        Delete Account
                                     </Text>
-                                    <Text className="text-gray-600 text-sm">
-                                        Manage account and preferences
+                                    <Text className="text-red-600 text-sm">
+                                        Permanently remove your account
                                     </Text>
                                 </View>
                                 <Ionicons
                                     name="chevron-forward"
                                     size={20}
-                                    color="#9ca3af"
+                                    color="#dc2626"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -274,6 +289,11 @@ const ReceiverDashboard = () => {
                     {/* Bottom spacing */}
                     <View className="h-8" />
                 </ScrollView>
+
+                <DeleteAccountModal
+                    visible={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                />
             </SafeAreaView>
         </SafeAreaProvider>
     );
