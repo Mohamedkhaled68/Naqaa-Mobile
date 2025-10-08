@@ -2,7 +2,7 @@ import DeleteAccountModal from "@/components/DeleteAccountModal";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
@@ -52,43 +52,23 @@ const Profile = () => {
                             )}
 
                             <View>
-                                <Text className="text-text-secondary text-sm">
-                                    Email
+                                <Text className="text-gray-600 text-sm">
+                                    Phone Number
                                 </Text>
-                                <Text className="text-text-primary text-lg font-medium">
-                                    {/* {user?.email} */}
+                                <Text className="text-gray-800 text-lg font-medium">
+                                    {user?.phoneNumber}
                                 </Text>
                             </View>
 
                             <View>
-                                <Text className="text-text-secondary text-sm">
-                                    User ID
+                                <Text className="text-gray-600 text-sm">
+                                    Role
                                 </Text>
-                                <Text className="text-text-primary text-lg font-medium">
-                                    {/* {user?.id} */}
+                                <Text className="text-gray-800 text-lg font-medium capitalize">
+                                    {user?.role}
                                 </Text>
                             </View>
                         </View>
-                    </View>
-
-                    <View className="flex-1 justify-end mb-32 space-y-3">
-                        <TouchableOpacity
-                            className="bg-error rounded-lg p-4"
-                            onPress={handleLogout}
-                        >
-                            <Text className="text-white text-center font-semibold text-lg">
-                                Logout
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            className="bg-red-600 rounded-lg p-4 border border-red-700 mt-5"
-                            onPress={() => setShowDeleteModal(true)}
-                        >
-                            <Text className="text-white text-center font-semibold text-lg">
-                                Delete Account
-                            </Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
 

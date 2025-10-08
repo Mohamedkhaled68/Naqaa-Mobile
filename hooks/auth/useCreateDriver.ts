@@ -11,7 +11,7 @@ type Driver = {
 };
 
 const useCreateDriver = () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
 
     return useMutation({
         mutationKey: ["auth", "register"],

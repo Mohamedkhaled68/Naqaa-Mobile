@@ -2,7 +2,7 @@ import NetInfo from "@react-native-community/netinfo";
 import axios, { InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const baseURL = "https://srv830738.hstgr.cloud/api";
+const baseURL = "https://api.modev.me/api";
 const TOKEN_KEY = "auth_token";
 
 // Create axios instance
@@ -17,7 +17,7 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
         try {
-            const token = await SecureStore.getItemAsync(TOKEN_KEY);
+            const token = await SecureStore.getItemAsync(TOKEN_KEY);            
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }

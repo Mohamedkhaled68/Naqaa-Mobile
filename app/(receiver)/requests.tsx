@@ -85,6 +85,12 @@ const PendingRequests = () => {
     };
 
     const renderRequestItem = ({ item }: { item: MaintenanceRequest }) => {
+        // Safe fallbacks for driver and car data
+        const driverName = item.driver?.name || "Unknown Driver";
+        const carBrand = item.car?.brand || "Unknown";
+        const carModel = item.car?.model || "Brand";
+        const plateNumber = item.car?.plateNumber || "N/A";
+
         return (
             <TouchableOpacity
                 className="bg-white rounded-lg p-3 mb-3 shadow-sm border border-gray-100"
@@ -98,11 +104,10 @@ const PendingRequests = () => {
                 <View className="flex-row justify-between items-start mb-2">
                     <View className="flex-1">
                         <Text className="text-base font-semibold text-gray-800 mb-1">
-                            {item.driver.name}
+                            {driverName}
                         </Text>
                         <Text className="text-xs text-gray-600">
-                            {item.car.brand} {item.car.model} (
-                            {item.car.plateNumber})
+                            {carBrand} {carModel} ({plateNumber})
                         </Text>
                     </View>
                     <View
@@ -127,7 +132,7 @@ const PendingRequests = () => {
                 </View>
 
                 <Text className="text-gray-700 text-sm mb-2" numberOfLines={1}>
-                    {item.description}
+                    {item.description || "No description available"}
                 </Text>
 
                 <View className="flex-row justify-between items-center">
@@ -147,11 +152,12 @@ const PendingRequests = () => {
                             .slice(0, 2)
                             .map((subCategory, index) => (
                                 <View
-                                    key={subCategory._id}
+                                    key={subCategory?._id || index}
                                     className="bg-blue-50 px-2 py-1 rounded-md mr-1 mb-1"
                                 >
                                     <Text className="text-xs text-blue-600">
-                                        {subCategory.name}
+                                        {subCategory?.name ||
+                                            "Unknown category"}
                                     </Text>
                                 </View>
                             ))}

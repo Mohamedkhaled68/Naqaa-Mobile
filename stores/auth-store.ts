@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
-const baseUrl = "https://srv830738.hstgr.cloud/api";
+const baseUrl = "https://api.modev.me/api";
 
 type AuthState = {
     user: User | null;
@@ -63,6 +63,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             const { user, token } = response.data.data || response.data;
 
+            console.log("Sign in response:", response.data);
+            console.log("Sign in response 2:", response.data.data);
+
             // Store in secure storage
             await SecureStore.setItemAsync(TOKEN_KEY, token);
             await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
@@ -99,12 +102,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    setToken: (token: string) => {
-        set({ token });
+    setToken: async (token: string) => {
+        try {
+            console.log("Storing token:", token);
+
+            await SecureStore.setItemAsync(TOKEN_KEY, token);
+            set({ token });
+        } catch (error) {
+            console.error("Failed to store token:", error);
+        }
     },
 
-    setUser: (user: User) => {
-        set({ user });
+    setUser: async (user: User) => {
+        try {
+            console.log("Storing user:", user);
+            console.log("Storing string user:", JSON.stringify(user));
+
+            await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
+            set({ user });
+        } catch (error) {
+            console.error("Failed to store user:", error);
+        }
     },
 
     isDriver: () => {

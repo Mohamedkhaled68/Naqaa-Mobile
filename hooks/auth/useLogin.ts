@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
 const useLogin = () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
 
     return useMutation({
         mutationKey: ["auth", "login"],
@@ -13,6 +13,11 @@ const useLogin = () => {
                 credentials.role === "driver"
                     ? "/auth/login"
                     : "/receivers/login";
+
+            console.log("from useLogin hook :", {
+                phoneNumber: credentials.phoneNumber,
+                password: credentials.password,
+            });
 
             const response = await axios.post(
                 `${baseUrl}${endpoint}`,
@@ -26,7 +31,6 @@ const useLogin = () => {
                     },
                 }
             );
-
             return response.data;
         },
 

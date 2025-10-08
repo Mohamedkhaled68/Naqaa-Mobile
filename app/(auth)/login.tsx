@@ -3,7 +3,6 @@ import { useAuthStore } from "@/stores/auth-store";
 import { LoginCredentials, UserRole } from "@/types/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
     ActivityIndicator,
@@ -61,17 +60,9 @@ const Login = () => {
 
             const result = await loginMutation.mutateAsync(credentials);
 
-            console.log(result);
-
-            // Store token and user data
-            await SecureStore.setItemAsync("auth_token", result.token);
-            await SecureStore.setItemAsync(
-                "auth_user",
-                JSON.stringify(result.user || result.receiver)
-            );
-
-            setToken(result.token);
-            setUser(result.user || result.receiver);
+            // Store token and user data using auth store
+            await setToken(result.token);
+            await setUser(result.user);
 
             // Redirect based on role
             router.replace(roleDetails.redirectPath as any);
@@ -147,6 +138,7 @@ const Login = () => {
                                     autoCapitalize="none"
                                     autoCorrect={false}
                                     editable={!loginMutation.isPending}
+                                    placeholderClassName="text-gray-400"
                                 />
                             </View>
 
@@ -161,6 +153,7 @@ const Login = () => {
                                     onChangeText={setPassword}
                                     secureTextEntry
                                     editable={!loginMutation.isPending}
+                                    placeholderClassName="text-gray-400"
                                 />
                             </View>
 

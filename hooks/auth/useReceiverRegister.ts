@@ -9,20 +9,16 @@ type Receiver = {
 };
 
 const useReceiverRegister = () => {
-    const baseUrl = "https://srv830738.hstgr.cloud/api";
+    const baseUrl = "https://api.modev.me/api";
 
     return useMutation({
         mutationKey: ["auth", "receiver", "register"],
         mutationFn: async (data: Receiver) => {
-            const response = await axios.post(
-                `${baseUrl}/receivers`,
-                data,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await axios.post(`${baseUrl}/receivers`, data, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
             return response.data.data;
         },
 
