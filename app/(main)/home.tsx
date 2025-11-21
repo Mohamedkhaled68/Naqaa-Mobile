@@ -25,10 +25,6 @@ const Home = () => {
     const { isConnected } = useNetwork();
     const { isLandscape } = useOrientation();
 
-    // Debug log to check user data structure
-    console.log("Home - User data:", user);
-    console.log("Home - User name:", user?.name, "Type:", typeof user?.name);
-
     // Check if driver has a car assigned (handle both null and undefined)
     const hasCarAssigned = currentDriver?.car != null;
 

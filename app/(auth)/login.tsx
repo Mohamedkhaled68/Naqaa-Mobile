@@ -62,7 +62,14 @@ const Login = () => {
 
             // Store token and user data using auth store
             await setToken(result.token);
-            await setUser(result.user);
+            console.log(result.token);
+            
+            if(role === 'driver'){
+
+                await setUser(result.user);
+            }else{
+                await setUser(result.data);
+            }
 
             // Redirect based on role
             router.replace(roleDetails.redirectPath as any);

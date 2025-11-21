@@ -1,4 +1,5 @@
 import useGetAcceptedRequests from "@/hooks/receiver/useGetAcceptedRequests";
+import useGetLastMaintenance from "@/hooks/receiver/useGetLastMaintenance";
 import { MaintenanceRequest } from "@/types/maintenance-request";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -22,9 +23,11 @@ const AcceptedRequests = () => {
         isRefetching,
     } = useGetAcceptedRequests();
 
+    const { data: maintenanceHistory, refetch: refetchHistory } =
+        useGetLastMaintenance();
 
     console.log("Accepted Requests Data:", requests);
-    
+    console.log("Maintenance History Data:", maintenanceHistory);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -295,13 +298,34 @@ const AcceptedRequests = () => {
                                 Accepted Requests
                             </Text>
                         </View>
-                        <TouchableOpacity onPress={() => refetch()}>
-                            <Ionicons
-                                name="refresh"
-                                size={24}
-                                color="#10b981"
-                            />
-                        </TouchableOpacity>
+                        <View className="flex-row items-center space-x-2">
+                            <TouchableOpacity
+                                onPress={() =>
+                                    router.push(
+                                        "/(receiver)/maintenance-history"
+                                    )
+                                }
+                                className="mr-3"
+                            >
+                                <Ionicons
+                                    name="document-text-outline"
+                                    size={24}
+                                    color="#8b5cf6"
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    refetch();
+                                    refetchHistory();
+                                }}
+                            >
+                                <Ionicons
+                                    name="refresh"
+                                    size={24}
+                                    color="#10b981"
+                                />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
 

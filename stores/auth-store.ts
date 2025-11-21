@@ -104,8 +104,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     setToken: async (token: string) => {
         try {
-            console.log("Storing token:", token);
-
             await SecureStore.setItemAsync(TOKEN_KEY, token);
             set({ token });
         } catch (error) {

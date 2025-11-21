@@ -14,11 +14,6 @@ const useLogin = () => {
                     ? "/auth/login"
                     : "/receivers/login";
 
-            console.log("from useLogin hook :", {
-                phoneNumber: credentials.phoneNumber,
-                password: credentials.password,
-            });
-
             const response = await axios.post(
                 `${baseUrl}${endpoint}`,
                 {
@@ -31,6 +26,7 @@ const useLogin = () => {
                     },
                 }
             );
+            
             return response.data;
         },
 

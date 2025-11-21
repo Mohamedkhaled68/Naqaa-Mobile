@@ -1,8 +1,10 @@
 import DeleteAccountModal from "@/components/DeleteAccountModal";
 import withNetworkErrorHandling from "@/components/withNetworkErrorHandling";
 import useGetAcceptedRequests from "@/hooks/receiver/useGetAcceptedRequests";
+import useGetLastMaintenance from "@/hooks/receiver/useGetLastMaintenance";
 import useGetPendingRequests from "@/hooks/receiver/useGetPendingRequests";
 import { useAuthStore } from "@/stores/auth-store";
+import { MaintenanceHistoryRecord } from "@/types/maintenance-history";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -30,13 +32,20 @@ const ReceiverDashboard = () => {
         refetch: refetchAccepted,
         isRefetching: isRefetchingAccepted,
     } = useGetAcceptedRequests();
+    const {
+        data: maintenanceHistory,
+        refetch: refetchHistory,
+        isRefetching: isRefetchingHistory,
+    } = useGetLastMaintenance();
 
     const handleRefresh = () => {
         refetchPending();
         refetchAccepted();
+        refetchHistory();
     };
 
-    const isRefreshing = isRefetchingPending || isRefetchingAccepted;
+    const isRefreshing =
+        isRefetchingPending || isRefetchingAccepted || isRefetchingHistory;
 
     const handleLogout = () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -71,6 +80,16 @@ const ReceiverDashboard = () => {
             color: "#10b981",
             bgColor: "#d1fae5",
             onPress: () => router.push("/(receiver)/accepted-requests"),
+        },
+        {
+            title: "Maintenance History",
+            count: maintenanceHistory?.length?.toString() || "0",
+            icon: "document-text-outline" as keyof typeof Ionicons.glyphMap,
+            color: "#8b5cf6",
+            bgColor: "#e9d5ff",
+            onPress: () => {
+                router.push("/(receiver)/maintenance-history");
+            },
         },
     ];
 
@@ -226,6 +245,112 @@ const ReceiverDashboard = () => {
                             </TouchableOpacity>
                         </View>
 
+                        {/* Recent Maintenance History */}
+                        <View className="mt-6">
+                            <Text className="text-lg font-semibold text-gray-800 mb-4">
+                                Recent Maintenance History
+                            </Text>
+                            {maintenanceHistory &&
+                            maintenanceHistory.length > 0 ? (
+                                <View className="space-y-3">
+                                    {maintenanceHistory
+                                        .slice(0, 3)
+                                        .map(
+                                            (
+                                                item: MaintenanceHistoryRecord,
+                                                index: number
+                                            ) => (
+                                                <View
+                                                    key={index}
+                                                    className="p-4 bg-white rounded-xl border border-gray-200"
+                                                >
+                                                    <View className="flex-row items-center justify-between mb-2">
+                                                        <Text className="font-medium text-gray-800">
+                                                            {item.description ||
+                                                                "Maintenance Request"}
+                                                        </Text>
+                                                        <Text className="text-xs text-gray-500">
+                                                            {item.date
+                                                                ? new Date(
+                                                                      item.date
+                                                                  ).toLocaleDateString()
+                                                                : "Date unknown"}
+                                                        </Text>
+                                                    </View>
+                                                    <Text className="text-sm text-gray-600 mb-2">
+                                                        Vehicle:{" "}
+                                                        {item.car
+                                                            ? `${item.car.brand} ${item.car.model} (${item.car.plateNumber})`
+                                                            : "N/A"}
+                                                    </Text>
+                                                    <Text className="text-sm text-gray-600 mb-2">
+                                                        Cost: ${item.cost || 0}{" "}
+                                                        {item.mechanicCost
+                                                            ? `+ $${item.mechanicCost} (mechanic)`
+                                                            : ""}
+                                                    </Text>
+                                                    <View className="flex-row items-center justify-between">
+                                                        <View
+                                                            className="px-2 py-1 rounded-full"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    "#e5e7eb",
+                                                            }}
+                                                        >
+                                                            <Text
+                                                                className="text-xs font-medium"
+                                                                style={{
+                                                                    color: "#374151",
+                                                                }}
+                                                            >
+                                                                Completed
+                                                            </Text>
+                                                        </View>
+                                                        {item.driver && (
+                                                            <Text className="text-xs text-gray-500">
+                                                                Driver:{" "}
+                                                                {
+                                                                    item.driver
+                                                                        .name
+                                                                }
+                                                            </Text>
+                                                        )}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            router.push(
+                                                "/(receiver)/maintenance-history"
+                                            )
+                                        }
+                                        className="p-3 bg-purple-50 rounded-xl border border-purple-200 flex-row items-center justify-center"
+                                    >
+                                        <Ionicons
+                                            name="document-text-outline"
+                                            size={20}
+                                            color="#8b5cf6"
+                                        />
+                                        <Text className="text-purple-600 font-medium ml-2">
+                                            View All History
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ) : (
+                                <View className="p-6 bg-white rounded-xl border border-gray-200 items-center">
+                                    <Ionicons
+                                        name="document-outline"
+                                        size={32}
+                                        color="#d1d5db"
+                                    />
+                                    <Text className="text-gray-500 text-center mt-2">
+                                        No maintenance history available
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+
                         {/* Profile Actions Section */}
                         <View className="mt-6 space-y-3">
                             <Text className="text-lg font-semibold text-gray-800 mb-4">
@@ -260,7 +385,7 @@ const ReceiverDashboard = () => {
 
                             <TouchableOpacity
                                 onPress={() => setShowDeleteModal(true)}
-                                className="p-4 bg-white rounded-xl border border-red-200 flex-row items-center"
+                                className="p-4 bg-white rounded-xl border border-red-200 flex-row items-center mt-4"
                             >
                                 <View className="w-12 h-12 bg-red-100 rounded-lg items-center justify-center mr-4">
                                     <Ionicons

@@ -34,7 +34,6 @@ const Notifications = () => {
 
     const { data: stats } = useGetNotificationsStats();
 
-    console.log("notidddddd", notifications);
 
     const markAllAsReadMutation = useMarkAllNotificationsAsRead();
     const markAsReadMutation = useMarkNotificationAsReadById();

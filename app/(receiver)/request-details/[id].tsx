@@ -29,6 +29,9 @@ const RequestDetails = () => {
         refetch,
     } = useGetMaintenanceRequestById(id as string);
 
+    console.log("data 222 : ", id);
+    console.log("data 222 : ", request);
+
     // Accept and reject mutations
     const acceptMutation = useAcceptMaintenanceRequest();
     const rejectMutation = useRejectMaintenanceRequest();

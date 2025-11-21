@@ -33,8 +33,6 @@ const DriverRequests = () => {
     } = useGetDriverMaintenanceRequests();
     const [activeTab, setActiveTab] = useState("pending");
 
-    console.log("Requests : ", requests);
-
     const getStatusColor = (status: string) => {
         switch (status) {
             case "open":

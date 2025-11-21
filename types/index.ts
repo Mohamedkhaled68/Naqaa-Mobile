@@ -2,6 +2,7 @@
 export * from "./auth";
 export * from "./car";
 export * from "./category";
+export * from "./maintenance-history";
 export * from "./maintenance-request";
 export * from "./notification";
 
