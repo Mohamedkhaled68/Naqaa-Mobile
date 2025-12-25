@@ -4,8 +4,8 @@ import axios from "axios";
 type Receiver = {
     name: string;
     email: string;
-    phoneNumber: string;
     password: string;
+    phoneNumber: string;
 };
 
 const useReceiverRegister = () => {
